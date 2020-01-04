@@ -58,7 +58,12 @@ public class SendMailUtil {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                boolean result = sms.sendFileMail(mailInfo, file);
+                boolean result = false;
+                if (file != null && file.length() > 0) {
+                    result = sms.sendFileMail(mailInfo, file);
+                } else {
+                    result = sms.sendTextMail(mailInfo);
+                }
                 if (sendMailCallback != null) {
                     sendMailCallback.onSend(result);
                 }
@@ -86,7 +91,7 @@ public class SendMailUtil {
         mailInfo.setPassword(FROM_PSW);// 您的邮箱密码
         mailInfo.setFromAddress(FROM_ADD); // 发送的邮箱
         mailInfo.setToAddress(toAdd); // 发到哪个邮件去
-        mailInfo.setSubject(appName + "App Bug反馈"); // 邮件主题
+        mailInfo.setSubject(appName + "App 日志反馈"); // 邮件主题
         if (TextUtils.isEmpty(userContact)) {
             userContact = "";
         }
