@@ -31,7 +31,7 @@ import java.util.Date;
 /**
  * 日志输出管理工具
  */
-public class npLog {
+public class NpLog {
 
     public static final String npBleTag = "npLogTag";
 
@@ -45,25 +45,32 @@ public class npLog {
     //日志文件的最大大小（以M为单位），最大不能超过5M
     private static float logFileMaxSizeByM = 2;
 
+    //是否显示当前日志的大小
+    private static boolean enableShowCurrentLogFileSize = false;
+
     /**
      * log日志目录
      */
     public static void setLogDir(String mLogDir) {
-        npLog.mLogDir = mLogDir;
+        NpLog.mLogDir = mLogDir;
     }
 
     /**
      * log日志文件名
      */
     public static void setLogFileName(String mLogFileName) {
-        npLog.mLogFileName = mLogFileName;
+        NpLog.mLogFileName = mLogFileName;
+    }
+
+    public static void setEnableShowCurrentLogFileSize(boolean enableShowCurrentLogFileSize) {
+        NpLog.enableShowCurrentLogFileSize = enableShowCurrentLogFileSize;
     }
 
     /**
      * 日志文件的最大大小（以M为单位），最大不能超过5M
      */
     public static void setLogFileMaxSizeByM(float logFileMaxSizeByM) {
-        npLog.logFileMaxSizeByM = logFileMaxSizeByM;
+        NpLog.logFileMaxSizeByM = logFileMaxSizeByM;
     }
 
     /**
@@ -81,7 +88,7 @@ public class npLog {
     }
 
     /**
-     * 初始化日志管理 默认文件夹 npLog ，默认文件名log
+     * 初始化日志管理 默认文件夹 NpLog ，默认文件名log
      */
     public static void initLog() {
         initLog(null, null);
@@ -95,7 +102,7 @@ public class npLog {
     }
 
 
-    private npLog() {
+    private NpLog() {
     }
 
     public static boolean allowD = true;
@@ -186,7 +193,9 @@ public class npLog {
                 e.printStackTrace();
             }
         } else {
-            e("size:" + file.length());
+            if (enableShowCurrentLogFileSize) {
+                e("size:" + file.length());
+            }
             if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
                 clearLogFile();
                 writeFile(strLine);
