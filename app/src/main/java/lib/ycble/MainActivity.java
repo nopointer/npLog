@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import npLog.nopointer.core.npLog;
 import npLog.nopointer.mail.SendMailUtil;
 
@@ -14,20 +16,12 @@ import npLog.nopointer.mail.SendMailUtil;
 public class MainActivity extends Activity {
 
 
-    //    public static String mac = "0C:B2:B7:53:39:D2";
-//    public static String macForHTX = "D2:92:7C:6B:8B:7A";
+    private static String HOST = "smtp.qq.com";
+    private static String PORT = "587";
+    private static String FROM_ADD = "3343249301@qq.com";
+    //现在QQ邮箱不是密码 而是临时密令
+    private static String FROM_PSW = "davpgtmyazmbciij";
 
-    String file1Path = "/storage/emulated/0/Download/Bluetooth/OTA_TEST1.bin";
-    String file2Path = "/storage/emulated/0/Download/Bluetooth/OTA_TEST2.bin";
-
-    String file3Path = "/storage/emulated/0/Bluetooth/MagicSwitch__OAD.bin";
-    String pathForHTX = "/sdcard/otaHelper/firmware/V5HD_H_20191024.bin";
-
-
-    //    public static final String macForXinCore = "E3:06:05:E7:9C:52";
-    public static final String macForXinCore = "CF:56:48:42:07:E2";
-
-    public static final String pathForXinCore = "/storage/emulated/0/Bluetooth/xincore_band.bin";
 
     private TextView textBtn;
 
@@ -44,21 +38,6 @@ public class MainActivity extends Activity {
         textBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                PushAiderHelper.getAiderHelper().goToSettingNotificationAccess(MainActivity.this);
-//                startActivity(new Intent(MainActivity.this,BleActivity.class));
-            }
-        });
-
-        npLog.initLog(null, null);
-
-//        npLog.clearLogFile();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-//                for (int i = 0; i < 100*4; i++) {
-//                    npLog.eAndSave("哈哈收发文奥无过和或或或或若或如隔热有何意义红外比的风格大哥哥哥哥各个而唯一我以为个人业余");
-//                }
                 SendMailUtil.send(npLog.getBleLogFileDir(), "635669470@qq.com", "npLog", "123", new SendMailUtil.SendMailCallback() {
                     @Override
                     public void onSend(boolean isSuccess) {
@@ -66,11 +45,22 @@ public class MainActivity extends Activity {
                     }
                 });
             }
-        }).start();
+        });
+        Locale locale = Locale.getDefault();
+//
+//        debug====locale==>zh_CN//中文
+//        debug====locale==>zh_TW//台湾繁体
+//        debug====locale==>zh_HK//香港繁体
+        String language = locale.toString();
+//        Toast.makeText(this, language, 0).show();
+        textBtn.setText(language);
 
+        npLog.initLog(null, null);
 
-//        npLog.eAndSave("what？");
+        npLog.eAndSave("debug");
 
+        SendMailUtil.setFromAdd(FROM_ADD);
+        SendMailUtil.setFromPsw(FROM_PSW);
 //        startActivity(new Intent(MainActivity.this,BleActivity.class));
 //        BleScanner.getInstance().registerScanListener(this);
 //        BleScanner.getInstance().startScan();

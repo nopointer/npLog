@@ -112,6 +112,9 @@ public class NpLog {
     public static boolean allowW = true;
     public static boolean allowWtf = true;
 
+    //是否允许保存,默认允许
+    public static boolean allowSave = true;
+
     private static SimpleDateFormat smp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 
@@ -132,6 +135,9 @@ public class NpLog {
      * @param content
      */
     public static void save(String content) {
+        if (!allowSave) {
+            return;
+        }
         String dateTime = smp.format(new Date());
         try {
             writeFile(dateTime + "  " + content);
