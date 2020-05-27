@@ -1,4 +1,4 @@
-package lib.ycble;
+package demo.nopointer.npLog;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+import demo.nopointer.R;
 import npLog.nopointer.core.npLog;
 import npLog.nopointer.mail.SendMailUtil;
 

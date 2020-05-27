@@ -1,4 +1,4 @@
-package lib.ycble;
+package demo.nopointer;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

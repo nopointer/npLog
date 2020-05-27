@@ -1,4 +1,4 @@
-package lib.ycble;
+package demo.nopointer;
 
 import org.junit.Test;
 
