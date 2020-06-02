@@ -15,6 +15,7 @@
 
 package npLog.nopointer.core;
 
+import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -48,6 +49,9 @@ public class NpLog {
     //是否显示当前日志的大小
     private static boolean enableShowCurrentLogFileSize = false;
 
+    private static String appVersionName = "";
+    private static String appVersionCode = "";
+
     /**
      * log日志目录
      */
@@ -79,9 +83,13 @@ public class NpLog {
      * @param logDir      日志的文件夹
      * @param logFileName 日志文件,不需要带后缀名称
      */
-    public static void initLog(String logDir, String logFileName) {
+    public static void initLog(String logDir, String logFileName, Context context) {
         mLogDir = logDir;
         mLogFileName = logFileName;
+        if (context != null) {
+            appVersionName = PhoneInfoUtils.getVersionName(context);
+            appVersionCode = PhoneInfoUtils.getVersionCode(context) + "";
+        }
         initDirAndFileName();
         Log.e("npLogTag", "初始化log管理器" + logDir + "/" + logFileName);
 
@@ -91,7 +99,7 @@ public class NpLog {
      * 初始化日志管理 默认文件夹 NpLog ，默认文件名log
      */
     public static void initLog() {
-        initLog(null, null);
+        initLog(null, null, null);
     }
 
 
@@ -259,6 +267,12 @@ public class NpLog {
         stringBuilder.append("手机型号:" + PhoneInfoUtils.getSystemModel()).append("\n");
         stringBuilder.append("安卓版本:" + PhoneInfoUtils.getSystemVersion()).append("\n");
         stringBuilder.append("语言环境:" + PhoneInfoUtils.getSystemLanguage()).append("\n");
+        if (!TextUtils.isEmpty(appVersionName)) {
+            stringBuilder.append("AppVersionName:" + appVersionName).append("\n");
+        }
+        if (!TextUtils.isEmpty(appVersionCode)) {
+            stringBuilder.append("AppVersionCode:" + appVersionCode).append("\n");
+        }
         return stringBuilder.toString();
     }
 

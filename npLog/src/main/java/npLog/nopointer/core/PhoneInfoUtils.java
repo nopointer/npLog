@@ -1,5 +1,8 @@
 package npLog.nopointer.core;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+
 import java.util.Locale;
 
 /**
@@ -43,6 +46,42 @@ class PhoneInfoUtils {
      */
     public static String getSystemModel() {
         return android.os.Build.MODEL;
+    }
+
+
+
+
+    /**
+     * 获取当前本地apk的版本
+     *
+     * @param context
+     * @return
+     */
+    public static int getVersionCode(Context context) {
+        int versionCode = 0;
+        try {
+            //获取软件版本号，对应AndroidManifest.xml下android:versionCode
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
+    }
+
+    /**
+     * 获取版本号名称
+     *
+     * @param context 上下文
+     * @return
+     */
+    public static String getVersionName(Context context) {
+        String verName = "";
+        try {
+            verName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return verName;
     }
 
     /**
