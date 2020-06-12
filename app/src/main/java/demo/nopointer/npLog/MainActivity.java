@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import demo.nopointer.R;
-import npLog.nopointer.core.npLog;
+import npLog.nopointer.core.NpLog;
 import npLog.nopointer.mail.SendMailUtil;
 
 
@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
         textBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SendMailUtil.send(npLog.getBleLogFileDir(), "635669470@qq.com", "npLog", "123", new SendMailUtil.SendMailCallback() {
+                SendMailUtil.send(NpLog.getBleLogFileDir(), "635669470@qq.com", "npLog", "123", new SendMailUtil.SendMailCallback() {
                     @Override
                     public void onSend(boolean isSuccess) {
 
@@ -56,9 +56,9 @@ public class MainActivity extends Activity {
 //        Toast.makeText(this, language, 0).show();
         textBtn.setText(language);
 
-        npLog.initLog(null, null);
+        NpLog.initLog(null, null,this);
 
-        npLog.eAndSave("debug");
+        NpLog.eAndSave("debug");
 
         SendMailUtil.setFromAdd(FROM_ADD);
         SendMailUtil.setFromPsw(FROM_PSW);
@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        npLog.e("清理掉了app");
+        NpLog.e("清理掉了app");
         super.onDestroy();
 //        BleScanner.getInstance().stopScan();
 //        PushAiderHelper.getAiderHelper().stop(this);

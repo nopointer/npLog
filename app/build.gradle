@@ -51,5 +51,5 @@ dependencies {
     //    implementation 'com.github.nopointer:ycBle:beta_0.2.7'
 //    implementation files('libs/wearable.jar')
     implementation 'com.google.code.gson:gson:2.8.1'
-    implementation 'com.github.nopointer:npLog:1.0.1'
+    implementation 'com.github.nopointer:npLog:1.0.4'
 }
