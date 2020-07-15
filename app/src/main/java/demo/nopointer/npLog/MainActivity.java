@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import demo.nopointer.R;
 import npLog.nopointer.core.NpLog;
 import npLog.nopointer.mail.SendMailUtil;
 
@@ -55,6 +54,17 @@ public class MainActivity extends Activity {
         String language = locale.toString();
 //        Toast.makeText(this, language, 0).show();
         textBtn.setText(language);
+        textBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SendMailUtil.send(NpLog.getBleLogFileDir(), "857508412@qq.com", "NpLog", "", new SendMailUtil.SendMailCallback() {
+                    @Override
+                    public void onSend(boolean isSuccess) {
+
+                    }
+                });
+            }
+        });
 
         NpLog.initLog(null, null,this);
 

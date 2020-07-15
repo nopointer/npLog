@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -51,6 +53,9 @@ public class NpLog {
 
     private static String appVersionName = "";
     private static String appVersionCode = "";
+
+
+    private static ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     /**
      * log日志目录
@@ -126,9 +131,14 @@ public class NpLog {
     private static SimpleDateFormat smp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 
-    public static void e(String content) {
+    public static void e(final String content) {
         if (allowE) {
-            Log.e(npBleTag, content);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e(npBleTag, content);
+                }
+            });
         }
     }
 
@@ -186,46 +196,52 @@ public class NpLog {
     }
 
     //记录日志
-    public synchronized static void writeFile(String strLine) {
-        // 首先创建文件夹
-        File appDir = new File(Environment.getExternalStorageDirectory(), mLogDir);
-        if (!appDir.exists()) {
-            appDir.mkdirs();
-        }
-        String fileName = mLogFileName + ".txt";
-        File file = new File(appDir, fileName);
-        if (!file.exists()) {
-            //文件第一次创建的时候,追加一些额外信息，比如app版本和手机型号等等
-            BufferedWriter fileOutputStream = null;
-            try {
-                fileOutputStream = new BufferedWriter(new FileWriter(file, true));
-                fileOutputStream.write(gteAppInfo());
-                fileOutputStream.newLine();
-                fileOutputStream.flush();
-                fileOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+    public synchronized static void writeFile(final String strLine) {
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                // 首先创建文件夹
+                File appDir = new File(Environment.getExternalStorageDirectory(), mLogDir);
+                if (!appDir.exists()) {
+                    appDir.mkdirs();
+                }
+                String fileName = mLogFileName + ".txt";
+                File file = new File(appDir, fileName);
+                if (!file.exists()) {
+                    //文件第一次创建的时候,追加一些额外信息，比如app版本和手机型号等等
+                    BufferedWriter fileOutputStream = null;
+                    try {
+                        fileOutputStream = new BufferedWriter(new FileWriter(file, true));
+                        fileOutputStream.write(gteAppInfo());
+                        fileOutputStream.newLine();
+                        fileOutputStream.flush();
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    if (enableShowCurrentLogFileSize) {
+                        e("size:" + file.length());
+                    }
+                    if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
+                        clearLogFile();
+                        writeFile(strLine);
+                        return;
+                    }
+                }
+                //追加文件写的内容
+                try {
+                    BufferedWriter fileOutputStream = new BufferedWriter(new FileWriter(file, true));
+                    fileOutputStream.write(strLine);
+                    fileOutputStream.newLine();
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } else {
-            if (enableShowCurrentLogFileSize) {
-                e("size:" + file.length());
-            }
-            if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
-                clearLogFile();
-                writeFile(strLine);
-                return;
-            }
-        }
-        //追加文件写的内容
-        try {
-            BufferedWriter fileOutputStream = new BufferedWriter(new FileWriter(file, true));
-            fileOutputStream.write(strLine);
-            fileOutputStream.newLine();
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+
     }
 
     /**
