@@ -55,7 +55,7 @@ public class NpLog {
     private static String appVersionCode = "";
 
 
-    private static ExecutorService executorService = Executors.newFixedThreadPool(3);
+    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * log日志目录
@@ -133,12 +133,7 @@ public class NpLog {
 
     public static void e(final String content) {
         if (allowE) {
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(npBleTag, content);
-                }
-            });
+            Log.e(npBleTag, content);
         }
     }
 
