@@ -36,7 +36,14 @@ import java.util.concurrent.Executors;
  */
 public class NpLog {
 
-    public static final String npBleTag = "npLogTag";
+
+    public static final int LEVEL_V = 0;
+    public static final int LEVEL_D = 1;
+    public static final int LEVEL_I = 2;
+    public static final int LEVEL_W = 3;
+    public static final int LEVEL_E = 4;
+
+    private static final String npBleTag = "npLogTag";
 
     //log日志目录
     private static String mLogDir = "npLog";
@@ -44,16 +51,31 @@ public class NpLog {
     //log日志文件名
     private static String mLogFileName = "log";
 
-
     //日志文件的最大大小（以M为单位），最大不能超过5M
     private static float logFileMaxSizeByM = 2;
 
     //是否显示当前日志的大小
     private static boolean enableShowCurrentLogFileSize = false;
 
+    //app的版本号和版本名称
     private static String appVersionName = "";
     private static String appVersionCode = "";
 
+    //是否显示调用路径和行号
+    public static boolean allowShowCallPathAndLineNumber = true;
+
+    //是否允许打印日志，默认允许
+    public static boolean allowLog = true;
+
+    //是否允许保存,默认允许
+    public static boolean allowSave = true;
+
+    //日志级别
+    private static int logLevel = LEVEL_E;
+
+    public static void setLogLevel(int logLevel) {
+        NpLog.logLevel = logLevel;
+    }
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -118,28 +140,59 @@ public class NpLog {
     private NpLog() {
     }
 
-    public static boolean allowD = true;
-    public static boolean allowE = true;
-    public static boolean allowI = true;
-    public static boolean allowV = true;
-    public static boolean allowW = true;
-    public static boolean allowWtf = true;
-
-    //是否允许保存,默认允许
-    public static boolean allowSave = true;
 
     private static SimpleDateFormat smp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 
-    public static void e(final String content) {
-        if (allowE) {
-            Log.e(npBleTag, content);
+    /**
+     * 打印日志
+     *
+     * @param content
+     */
+    public static void log(String content) {
+        if (allowLog) {
+            if (allowShowCallPathAndLineNumber) {
+                StackTraceElement caller = getCallerStackTraceElement();
+                content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
+            }
+            switch (logLevel) {
+                case LEVEL_V:
+                    Log.v(npBleTag, content);
+                    break;
+                case LEVEL_D:
+                    Log.d(npBleTag, content);
+                    break;
+                case LEVEL_I:
+                    Log.i(npBleTag, content);
+                    break;
+                case LEVEL_W:
+                    Log.w(npBleTag, content);
+                    break;
+                case LEVEL_E:
+                    Log.e(npBleTag, content);
+                    break;
+            }
+
         }
     }
 
-    public static void eAndSave(String content) {
-        e(content);
-        save(content);
+    public static void logAndSave(String content) {
+        if (allowShowCallPathAndLineNumber) {
+            StackTraceElement caller = getCallerStackTraceElement();
+            content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
+        }
+        if (allowLog) {
+            Log.e(npBleTag, content);
+        }
+        if (!allowSave) {
+            return;
+        }
+        String dateTime = smp.format(new Date());
+        try {
+            writeFile(dateTime + "  " + content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -152,6 +205,10 @@ public class NpLog {
             return;
         }
         String dateTime = smp.format(new Date());
+        if (allowShowCallPathAndLineNumber) {
+            StackTraceElement caller = getCallerStackTraceElement();
+            content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
+        }
         try {
             writeFile(dateTime + "  " + content);
         } catch (Exception e) {
@@ -159,36 +216,6 @@ public class NpLog {
         }
     }
 
-
-    public static void w(String content) {
-        if (!allowW) return;
-        Log.w(npBleTag, content);
-    }
-
-    public static void wAndSave(String content) {
-        w(content);
-        save(content);
-    }
-
-    public static void i(String content) {
-        if (!allowW) return;
-        Log.i(npBleTag, content);
-    }
-
-    public static void iAndSave(String content) {
-        i(content);
-        save(content);
-    }
-
-    public static void d(String content) {
-        if (!allowD) return;
-        Log.d(npBleTag, content);
-    }
-
-    public static void dAndSave(String content) {
-        d(content);
-        save(content);
-    }
 
     //记录日志
     public synchronized static void writeFile(final String strLine) {
@@ -216,7 +243,7 @@ public class NpLog {
                     }
                 } else {
                     if (enableShowCurrentLogFileSize) {
-                        e("size:" + file.length());
+                        log("size:" + file.length());
                     }
                     if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
                         clearLogFile();
@@ -245,7 +272,7 @@ public class NpLog {
     public synchronized static void clearLogFile() {
         File file = new File(Environment.getExternalStorageDirectory(), getFilePath());
         if (file.exists()) {
-            e("成功删除文件" + file.getAbsolutePath());
+            log("成功删除文件" + file.getAbsolutePath());
             file.delete();
         }
     }
@@ -315,4 +342,21 @@ public class NpLog {
         }
     }
 
+    /**
+     * 获取调用路径和行号
+     *
+     * @return
+     */
+    private static String getCallPathAndLineNumber(StackTraceElement caller) {
+        String result = "%s.%s(L:%d)";
+        String callerClazzName = caller.getClassName();
+        callerClazzName = callerClazzName.substring(callerClazzName.lastIndexOf(".") + 1);
+        result = String.format(result, callerClazzName, caller.getMethodName(), caller.getLineNumber());
+        return result;
+    }
+
+
+    public static StackTraceElement getCallerStackTraceElement() {
+        return Thread.currentThread().getStackTrace()[4];
+    }
 }

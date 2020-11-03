@@ -68,7 +68,8 @@ public class MainActivity extends Activity {
 
         NpLog.initLog(null, null,this);
 
-        NpLog.eAndSave("debug");
+//        NpLog.eAndSave("debug");
+
 
         SendMailUtil.setFromAdd(FROM_ADD);
         SendMailUtil.setFromPsw(FROM_PSW);
@@ -147,12 +148,16 @@ public class MainActivity extends Activity {
 //        WearableManager.getInstance().setRemoteDevice(bluetoothDevice);
 //        npLog.e("[wearable][onCreate], BTNoticationApplication WearableManager connect!///" + WearableManager.getInstance().getWorkingMode());
 //        WearableManager.getInstance().connect();
+
+
+        NpLog.setLogLevel(NpLog.LEVEL_E);
+        NpLog.allowShowCallPathAndLineNumber =true;
+        NpLog.log("fuck！！！！");
     }
 
 
     @Override
     protected void onDestroy() {
-        NpLog.e("清理掉了app");
         super.onDestroy();
 //        BleScanner.getInstance().stopScan();
 //        PushAiderHelper.getAiderHelper().stop(this);
