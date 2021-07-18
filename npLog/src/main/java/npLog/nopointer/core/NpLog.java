@@ -54,6 +54,9 @@ public class NpLog {
     //日志文件的最大大小（以M为单位），最大不能超过5M
     private static float logFileMaxSizeByM = 2;
 
+    //是否强制使用超过最大的记录，就是不设置上限，也就是1T的大小
+    private static boolean isForceOutOfMaxSize = false;
+
     //是否显示当前日志的大小
     private static boolean enableShowCurrentLogFileSize = false;
 
@@ -102,6 +105,10 @@ public class NpLog {
      */
     public static void setLogFileMaxSizeByM(float logFileMaxSizeByM) {
         NpLog.logFileMaxSizeByM = logFileMaxSizeByM;
+    }
+
+    public static void setIsForceOutOfMaxSize(boolean isForceOutOfMaxSize) {
+        NpLog.isForceOutOfMaxSize = isForceOutOfMaxSize;
     }
 
     /**
@@ -337,8 +344,13 @@ public class NpLog {
         if (logFileMaxSizeByM <= 0) {
             logFileMaxSizeByM = 2;
         }
-        if (logFileMaxSizeByM >= 5) {
-            logFileMaxSizeByM = 5;
+
+        if (!isForceOutOfMaxSize) {
+            if (logFileMaxSizeByM >= 5) {
+                logFileMaxSizeByM = 5;
+            }
+        } else {
+            logFileMaxSizeByM = 1024 * 1024 * 1024;
         }
     }
 
