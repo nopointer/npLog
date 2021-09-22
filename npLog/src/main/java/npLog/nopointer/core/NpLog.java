@@ -45,6 +45,8 @@ public class NpLog {
 
     private static final String npBleTag = "npLogTag";
 
+    private static Context mContext = null;
+
     //log日志目录
     private static String mLogDir = "npLog";
 
@@ -75,6 +77,7 @@ public class NpLog {
 
     //日志级别
     private static int logLevel = LEVEL_E;
+
 
     public static void setLogLevel(int logLevel) {
         NpLog.logLevel = logLevel;
@@ -118,6 +121,7 @@ public class NpLog {
      * @param logFileName 日志文件,不需要带后缀名称
      */
     public static void initLog(String logDir, String logFileName, Context context) {
+        mContext = context;
         mLogDir = logDir;
         mLogFileName = logFileName;
         if (context != null) {
@@ -125,21 +129,14 @@ public class NpLog {
             appVersionCode = PhoneInfoUtils.getVersionCode(context) + "";
         }
         initDirAndFileName();
-        Log.e("npLogTag", "初始化log管理器" + logDir + "/" + logFileName);
+        Log.e("npLogTag", "初始化log管理器" + mLogDir + "/" + mLogFileName);
 
-    }
-
-    /**
-     * 初始化日志管理 默认文件夹 NpLog ，默认文件名log
-     */
-    public static void initLog() {
-        initLog(null, null, null);
     }
 
 
     public static File getBleLogFileDir() {
         initDirAndFileName();
-        File appDir = new File(Environment.getExternalStorageDirectory(), getFilePath());
+        File appDir = new File(getLogParentDir(), getFilePath());
         return appDir;
     }
 
@@ -230,7 +227,7 @@ public class NpLog {
             @Override
             public void run() {
                 // 首先创建文件夹
-                File appDir = new File(Environment.getExternalStorageDirectory(), mLogDir);
+                File appDir = new File(getLogParentDir(), mLogDir);
                 if (!appDir.exists()) {
                     appDir.mkdirs();
                 }
@@ -277,7 +274,7 @@ public class NpLog {
      * 删除日志文件
      */
     public synchronized static void clearLogFile() {
-        File file = new File(Environment.getExternalStorageDirectory(), getFilePath());
+        File file = new File(getLogParentDir(), getFilePath());
         if (file.exists()) {
             log("成功删除文件" + file.getAbsolutePath());
             file.delete();
@@ -370,5 +367,9 @@ public class NpLog {
 
     public static StackTraceElement getCallerStackTraceElement() {
         return Thread.currentThread().getStackTrace()[4];
+    }
+
+    static File getLogParentDir(){
+        return  mContext.getExternalFilesDir(null).getParentFile();
     }
 }

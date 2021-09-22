@@ -68,6 +68,8 @@ public class MainActivity extends Activity {
 
         NpLog.initLog(null, null,this);
 
+        NpLog.logAndSave("哈哈");
+
 //        NpLog.eAndSave("debug");
 
 
