@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.Locale;
 
 import npLog.nopointer.core.NpLog;
@@ -38,7 +39,7 @@ public class MainActivity extends Activity {
         textBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SendMailUtil.send(NpLog.getBleLogFileDir(), "635669470@qq.com", "npLog", "123", new SendMailUtil.SendMailCallback() {
+                SendMailUtil.send(NpLog.getLogFileDir(), "635669470@qq.com", "npLog", "123", new SendMailUtil.SendMailCallback() {
                     @Override
                     public void onSend(boolean isSuccess) {
 
@@ -57,7 +58,7 @@ public class MainActivity extends Activity {
         textBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SendMailUtil.send(NpLog.getBleLogFileDir(), "857508412@qq.com", "NpLog", "", new SendMailUtil.SendMailCallback() {
+                SendMailUtil.send(NpLog.getLogFileDir(), "857508412@qq.com", "NpLog", "", new SendMailUtil.SendMailCallback() {
                     @Override
                     public void onSend(boolean isSuccess) {
 
@@ -66,7 +67,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        NpLog.initLog(null, null,this);
+//        NpLog.initLog(null, null, this);
 
         NpLog.logAndSave("哈哈");
 
@@ -153,8 +154,13 @@ public class MainActivity extends Activity {
 
 
         NpLog.setLogLevel(NpLog.LEVEL_E);
-        NpLog.allowShowCallPathAndLineNumber =true;
+        NpLog.allowShowCallPathAndLineNumber = true;
         NpLog.log("fuck！！！！");
+
+//        File dir = NpLog.getLogFileDir();
+//        NpLog.log("dir = " + dir.getPath());
+//        File file = NpLog.getLogFile();
+//        NpLog.log("file = " + file.getPath());
     }
 
 

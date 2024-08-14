@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -68,6 +69,8 @@ public class NpLog {
 
     //是否显示调用路径和行号
     public static boolean allowShowCallPathAndLineNumber = true;
+
+    public static boolean allowSaveCallPathAndLineNumber = true;
 
     //是否允许打印日志，默认允许
     public static boolean allowLog = true;
@@ -134,10 +137,18 @@ public class NpLog {
     }
 
 
-    public static File getBleLogFileDir() {
+    public static File getLogFileDir() {
+        return getLogFile().getParentFile();
+    }
+
+    public static File getLogFile() {
         initDirAndFileName();
-        File appDir = new File(getLogParentDir(), getFilePath());
-        return appDir;
+        File logParentDir = getLogParentDir();
+        if (logParentDir != null) {
+            return new File(logParentDir, getFilePath());
+        } else {
+            return null;
+        }
     }
 
 
@@ -145,7 +156,7 @@ public class NpLog {
     }
 
 
-    private static SimpleDateFormat smp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static SimpleDateFormat smp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
 
 
     /**
@@ -181,7 +192,7 @@ public class NpLog {
     }
 
     public static void logAndSave(String content) {
-        if (allowShowCallPathAndLineNumber) {
+        if (allowSaveCallPathAndLineNumber) {
             StackTraceElement caller = getCallerStackTraceElement();
             content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
         }
@@ -209,7 +220,7 @@ public class NpLog {
             return;
         }
         String dateTime = smp.format(new Date());
-        if (allowShowCallPathAndLineNumber) {
+        if (allowSaveCallPathAndLineNumber) {
             StackTraceElement caller = getCallerStackTraceElement();
             content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
         }
@@ -226,42 +237,46 @@ public class NpLog {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                // 首先创建文件夹
-                File appDir = new File(getLogParentDir(), mLogDir);
-                if (!appDir.exists()) {
-                    appDir.mkdirs();
-                }
-                String fileName = mLogFileName + ".txt";
-                File file = new File(appDir, fileName);
-                if (!file.exists()) {
-                    //文件第一次创建的时候,追加一些额外信息，比如app版本和手机型号等等
-                    BufferedWriter fileOutputStream = null;
+                try {
+                    // 首先创建文件夹
+                    File appDir = new File(getLogParentDir(), mLogDir);
+                    if (!appDir.exists()) {
+                        appDir.mkdirs();
+                    }
+                    String fileName = mLogFileName + ".txt";
+                    File file = new File(appDir, fileName);
+                    if (!file.exists()) {
+                        //文件第一次创建的时候,追加一些额外信息，比如app版本和手机型号等等
+                        BufferedWriter fileOutputStream = null;
+                        try {
+                            fileOutputStream = new BufferedWriter(new FileWriter(file, true));
+                            fileOutputStream.write(gteAppInfo());
+                            fileOutputStream.newLine();
+                            fileOutputStream.flush();
+                            fileOutputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        if (enableShowCurrentLogFileSize) {
+                            log("size:" + file.length());
+                        }
+                        if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
+                            clearLogFile();
+                            writeFile(strLine);
+                            return;
+                        }
+                    }
+                    //追加文件写的内容
                     try {
-                        fileOutputStream = new BufferedWriter(new FileWriter(file, true));
-                        fileOutputStream.write(gteAppInfo());
+                        BufferedWriter fileOutputStream = new BufferedWriter(new FileWriter(file, true));
+                        fileOutputStream.write(strLine);
                         fileOutputStream.newLine();
                         fileOutputStream.flush();
                         fileOutputStream.close();
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else {
-                    if (enableShowCurrentLogFileSize) {
-                        log("size:" + file.length());
-                    }
-                    if (file.length() > logFileMaxSizeByM * 1024 * 1024) {
-                        clearLogFile();
-                        writeFile(strLine);
-                        return;
-                    }
-                }
-                //追加文件写的内容
-                try {
-                    BufferedWriter fileOutputStream = new BufferedWriter(new FileWriter(file, true));
-                    fileOutputStream.write(strLine);
-                    fileOutputStream.newLine();
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -365,11 +380,11 @@ public class NpLog {
     }
 
 
-    public static StackTraceElement getCallerStackTraceElement() {
+    static StackTraceElement getCallerStackTraceElement() {
         return Thread.currentThread().getStackTrace()[4];
     }
 
-    static File getLogParentDir(){
-        return  mContext.getExternalFilesDir(null).getParentFile();
+    static File getLogParentDir() {
+        return mContext.getExternalFilesDir(null);
     }
 }
