@@ -6,57 +6,45 @@
     android:layout_height="match_parent"
     android:background="#FFF">
 
-    <TextView
-        android:id="@+id/textBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:minHeight="60dp"
-        android:text="点击发送日志邮件"
-        android:textColor="#000" />
+
 
 
     <LinearLayout
+        android:layout_marginTop="100dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="150dp"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:text="双色球"
-            android:textColor="@color/colorPrimary" />
-
         <Button
-            android:id="@+id/btnCodeDouble"
+            android:id="@+id/btnConn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#666"
             android:gravity="center"
-            android:text="未摇号-点击摇号"
+            android:text="-点击链接-"
             android:textColor="#FFF"
             android:textSize="25sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingLeft="15dp"
-            android:text="大乐透"
-            android:textColor="@color/colorPrimary" />
-
         <Button
-            android:id="@+id/btnCodeBig"
+            android:layout_marginTop="2dp"
+            android:id="@+id/btnNotify"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:background="#666"
             android:gravity="center"
-            android:text="未摇号-点击摇号"
+            android:text="-点击发送-"
+            android:textColor="#FFF"
+            android:textSize="25sp" />
+
+
+        <Button
+            android:layout_marginTop="2dp"
+            android:id="@+id/btnSend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#666"
+            android:gravity="center"
+            android:text="-点击发送-"
             android:textColor="#FFF"
             android:textSize="25sp" />
 

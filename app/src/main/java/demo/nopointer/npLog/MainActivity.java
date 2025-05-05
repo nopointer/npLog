@@ -2,12 +2,25 @@ package demo.nopointer.npLog;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.tencent.mmkv.MMKV;
+
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import npLog.nopointer.core.NpLog;
@@ -30,6 +43,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        startActivity(new Intent(this,DebugActiviyt.class));
+//        finish();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -76,91 +92,50 @@ public class MainActivity extends Activity {
 
         SendMailUtil.setFromAdd(FROM_ADD);
         SendMailUtil.setFromPsw(FROM_PSW);
-//        startActivity(new Intent(MainActivity.this,BleActivity.class));
-//        BleScanner.getInstance().registerScanListener(this);
-//        BleScanner.getInstance().startScan();
-
-//        mac = "20:17:98:F7:7F:E5";
-//        OTAHelper.getInstance().startOTA(this, file2Path, mac, null, FirmType.HTX, new OTACallback() {
-//            @Override
-//            public void onFailure(int code, String message) {
-//                npLog.e("onFailure==>" + code + "///" + message);
-//            }
-//
-//            @Override
-//            public void onSuccess() {
-//                npLog.e("onSuccess==>");
-//            }
-//
-//            @Override
-//            public void onProgress(int progress) {
-//                npLog.e("onProgress==>" + progress);
-//            }
-//        });
-//        startService(new Intent(this, BgService.class));
-
-
-//        BleDevice bleDevice = new BleDevice("W28", macForXinCore);
-////
-//        OTAHelper.getInstance().startOTA(this, pathForXinCore, bleDevice, FirmType.XC, new OTACallback() {
-//
-//
-//            @Override
-//            public void onFailure(int code, String message) {
-//                npLog.e("onFailure===ota失败" + message);
-//            }
-//
-//            @Override
-//            public void onSuccess() {
-//                npLog.e("onSuccess===ota成功");
-//            }
-//
-//            @Override
-//            public void onProgress(int progress) {
-//                npLog.e("progress===>ota进度" + progress);
-//            }
-//        });
-
-//        BlePhoneSysUtil.releaseAllScanClient();
-//        BlePhoneSysUtil.refreshBleAppFromSystem(this,"lib.ycble.demo");
-//
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-
-//        NpBleManager.getBleManager().connBleDevice(macForXinCore);
-
-//        startService(new Intent(this, MainBackLiveService.class));
-//        BleScanner.getBleScaner().startScan();
-
-//        NpBleManager.getBleManager().connDevice(mac);
-
-
-//        npLog.e("MTK mode==>" + WearableManager.getInstance().getWorkingMode());
-//
-//
-//        Set<BluetoothDevice> tmpList = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-//
-//
-//        BluetoothDevice bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice("40:3D:A0:01:62:61");
-//        npLog.e("name===>" + bluetoothDevice.getName());
-//
-//        WearableManager.getInstance().setRemoteDevice(bluetoothDevice);
-//        npLog.e("[wearable][onCreate], BTNoticationApplication WearableManager connect!///" + WearableManager.getInstance().getWorkingMode());
-//        WearableManager.getInstance().connect();
-
 
         NpLog.setLogLevel(NpLog.LEVEL_E);
         NpLog.allowShowCallPathAndLineNumber = true;
         NpLog.log("fuck！！！！");
 
-//        File dir = NpLog.getLogFileDir();
-//        NpLog.log("dir = " + dir.getPath());
-//        File file = NpLog.getLogFile();
-//        NpLog.log("file = " + file.getPath());
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        MMKV kv = MMKV.defaultMMKV();
+        {
+            Button btnCodeDouble = findViewById(R.id.btnCodeDouble);
+            String key = date + "_Double";
+            String codeDouble = kv.decodeString(key, null);
+            if (!TextUtils.isEmpty(codeDouble)) {
+                btnCodeDouble.setText(formatCodeDouble(codeDouble));
+                btnCodeDouble.setEnabled(false);
+            } else {
+                btnCodeDouble.setOnClickListener(v -> {
+                    String getCode = CodeUtils.startDouble();
+                    btnCodeDouble.setText(formatCodeDouble(getCode));
+                    kv.encode(key, getCode);
+                    btnCodeDouble.setEnabled(false);
+                });
+            }
+        }
+
+        {
+            Button btnCodeBig = findViewById(R.id.btnCodeBig);
+            String key = date + "_Big";
+            String codeBig = kv.decodeString(key, null);
+            if (!TextUtils.isEmpty(codeBig)) {
+
+                NpLog.log("codeBig = " + codeBig);
+
+                btnCodeBig.setText(formatCodeBig(codeBig));
+                btnCodeBig.setEnabled(false);
+            } else {
+                btnCodeBig.setOnClickListener(v -> {
+                    String getCode = CodeUtils.startBig();
+                    btnCodeBig.setText(formatCodeBig(getCode));
+                    kv.encode(key, getCode);
+                    btnCodeBig.setEnabled(false);
+                });
+            }
+        }
     }
 
 
@@ -171,25 +146,84 @@ public class MainActivity extends Activity {
 //        PushAiderHelper.getAiderHelper().stop(this);
     }
 
+    static String formatCodeDouble(String code) {
+        String[] array = code.split(" , ");
+        List<String> tmpList = new ArrayList<>();
+        for (int i = 0; i < array.length; i++) {
+            if (!TextUtils.isEmpty(array[i])) {
+                tmpList.add(array[i]);
+            }
+        }
 
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//
-//        PushAiderHelper.getAiderHelper().registerCallAndSmsReceiver(this);
-////        PushAiderHelper.getAiderHelper().startListeningForNotifications(this);
-//        if (PushAiderHelper.getAiderHelper().isNotifyEnable(this)) {
-//            PushAiderHelper.getAiderHelper().startListeningForNotifications(this);
-//            textBtn.setText("已开启");
-//
-//        } else {
-//            textBtn.setText("未开启");
-//        }
-//    }
+        List<Integer> oneList = new ArrayList<>();
+        for (int i = 0; i < tmpList.size() - 1; i++) {
+            oneList.add(Integer.valueOf(tmpList.get(i)));
+        }
+        Collections.sort(oneList, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1 - o2;
+            }
+        });
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int i : oneList) {
+            stringBuffer.append(i).append(" , ");
+        }
+        stringBuffer.append(tmpList.get(tmpList.size() - 1));
 
-    //    adb shell dumpsys activity | grep -i run
-//    plugin.voip.ui.VideoActivity
-//    plugin.voip.ui.VideoActivity
+        return stringBuffer.toString();
+    }
+
+
+    static String formatCodeBig(String code) {
+        String[] array = code.split(" , ");
+        NpLog.log("array = " + new Gson().toJson(array));
+
+        List<String> tmpList = new ArrayList<>();
+        for (int i = 0; i < array.length; i++) {
+            if (!TextUtils.isEmpty(array[i])) {
+                tmpList.add(array[i]);
+            }
+        }
+
+        NpLog.log("tmpList = " + new Gson().toJson(tmpList));
+
+        List<Integer> oneList = new ArrayList<>();
+        for (int i = 0; i < tmpList.size() - 2; i++) {
+            oneList.add(Integer.valueOf(tmpList.get(i)));
+        }
+        Collections.sort(oneList, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1 - o2;
+            }
+        });
+
+        List<Integer> twoList = new ArrayList<>();
+        for (int i = tmpList.size() - 2; i < tmpList.size(); i++) {
+            twoList.add(Integer.valueOf(tmpList.get(i)));
+        }
+
+
+        Collections.sort(twoList, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1 - o2;
+            }
+        });
+
+        NpLog.log("onwList = " + new Gson().toJson(oneList));
+        NpLog.log("twoList = " + new Gson().toJson(twoList));
+
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int i : oneList) {
+            stringBuffer.append(i).append(" , ");
+        }
+        stringBuffer.append(twoList.get(0)).append(" , ");
+        stringBuffer.append(twoList.get(1));
+
+        return stringBuffer.toString();
+    }
+
 
 }
