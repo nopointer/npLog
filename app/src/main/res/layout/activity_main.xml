@@ -1,67 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF">
+    android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textBtn"
-        android:layout_width="wrap_content"
+        android:id="@+id/btnMail"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:layout_marginTop="120dp"
+        android:background="#696969"
         android:gravity="center"
         android:minHeight="60dp"
         android:text="点击发送日志邮件"
-        android:textColor="#000" />
+        android:textColor="#fff" />
 
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/btnShare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="150dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:text="双色球"
-            android:textColor="@color/colorPrimary" />
-
-        <Button
-            android:id="@+id/btnCodeDouble"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#666"
-            android:gravity="center"
-            android:text="未摇号-点击摇号"
-            android:textColor="#FFF"
-            android:textSize="25sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingLeft="15dp"
-            android:text="大乐透"
-            android:textColor="@color/colorPrimary" />
-
-        <Button
-            android:id="@+id/btnCodeBig"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="#666"
-            android:gravity="center"
-            android:text="未摇号-点击摇号"
-            android:textColor="#FFF"
-            android:textSize="25sp" />
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:background="#696969"
+        android:gravity="center"
+        android:minHeight="60dp"
+        android:text="点击分享日志文件"
+        android:textColor="#fff" />
 
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/btnSee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:background="#696969"
+        android:gravity="center"
+        android:minHeight="60dp"
+        android:text="点击查看日志文件"
+        android:textColor="#fff" />
 
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/btnCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="120dp"
+        android:background="#696969"
+        android:gravity="center"
+        android:minHeight="60dp"
+        android:text="Code"
+        android:textColor="#fff" />
+
+
+</LinearLayout>

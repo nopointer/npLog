@@ -81,7 +81,7 @@ public class NpLog {
     //日志级别
     private static int logLevel = LEVEL_E;
 
-
+    static final int segmentSize = 4 * 1000;
     public static void setLogLevel(int logLevel) {
         NpLog.logLevel = logLevel;
     }
@@ -117,6 +117,10 @@ public class NpLog {
         NpLog.isForceOutOfMaxSize = isForceOutOfMaxSize;
     }
 
+    public static void initLog(Context context) {
+        initLog(null, null, context);
+    }
+
     /**
      * 初始化日志管理
      *
@@ -133,13 +137,9 @@ public class NpLog {
         }
         initDirAndFileName();
         Log.e("npLogTag", "初始化log管理器" + mLogDir + "/" + mLogFileName);
-
     }
 
 
-    public static File getLogFileDir() {
-        return getLogFile().getParentFile();
-    }
 
     public static File getLogFile() {
         initDirAndFileName();
@@ -170,26 +170,43 @@ public class NpLog {
                 StackTraceElement caller = getCallerStackTraceElement();
                 content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
             }
-            switch (logLevel) {
-                case LEVEL_V:
-                    Log.v(npBleTag, content);
-                    break;
-                case LEVEL_D:
-                    Log.d(npBleTag, content);
-                    break;
-                case LEVEL_I:
-                    Log.i(npBleTag, content);
-                    break;
-                case LEVEL_W:
-                    Log.w(npBleTag, content);
-                    break;
-                case LEVEL_E:
-                    Log.e(npBleTag, content);
-                    break;
-            }
 
+            long length = content.length();
+            if (length <= segmentSize) {// 长度小于等于限制直接打印
+                logCode(content);
+            } else {
+                while (content.length() > segmentSize) {// 循环分段打印日志
+                    String logContent = content.substring(0, segmentSize);
+                    logCode(logContent);
+                    //                    content = content.replace(logContent, "");
+                    content = content.substring(logContent.length());
+                }
+                logCode(content);
+            }
         }
     }
+
+
+    static void logCode(String content) {
+        switch (logLevel) {
+            case LEVEL_V:
+                Log.v(npBleTag, content);
+                break;
+            case LEVEL_D:
+                Log.d(npBleTag, content);
+                break;
+            case LEVEL_I:
+                Log.i(npBleTag, content);
+                break;
+            case LEVEL_W:
+                Log.w(npBleTag, content);
+                break;
+            case LEVEL_E:
+                Log.e(npBleTag, content);
+                break;
+        }
+    }
+
 
     public static void logAndSave(String content) {
         if (allowSaveCallPathAndLineNumber) {
@@ -197,7 +214,18 @@ public class NpLog {
             content = "[" + getCallPathAndLineNumber(caller) + "]：" + content;
         }
         if (allowLog) {
-            Log.e(npBleTag, content);
+            long length = content.length();
+            if (length <= segmentSize) {// 长度小于等于限制直接打印
+                logCode(content);
+            } else {
+                while (content.length() > segmentSize) {// 循环分段打印日志
+                    String logContent = content.substring(0, segmentSize);
+                    logCode(logContent);
+//                    content = content.replace(logContent, "");
+                    content = content.substring(logContent.length() + 1);
+                }
+                logCode(content);
+            }
         }
         if (!allowSave) {
             return;
@@ -289,10 +317,13 @@ public class NpLog {
      * 删除日志文件
      */
     public synchronized static void clearLogFile() {
-        File file = new File(getLogParentDir(), getFilePath());
-        if (file.exists()) {
-            log("成功删除文件" + file.getAbsolutePath());
-            file.delete();
+        File dir = getLogParentDir();
+        if (dir != null) {
+            File file = new File(dir, getFilePath());
+            if (file.exists()) {
+                log("成功删除文件" + file.getAbsolutePath());
+                file.delete();
+            }
         }
     }
 
@@ -385,6 +416,8 @@ public class NpLog {
     }
 
     static File getLogParentDir() {
-        return mContext.getExternalFilesDir(null);
+        if (mContext != null)
+            return mContext.getExternalFilesDir(null);
+        return null;
     }
 }
